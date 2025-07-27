@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Do I Need to Scrape?</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #dfefff, #ffffff);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #005f99;
+      color: white;
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .forecast-box {
+      background-color: #f0f8ff;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: none;
+    }
+
+    .prediction {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #003366;
+      margin-top: 1rem;
+    }
+
+    .tip {
+      margin-top: 0.5rem;
+      font-style: italic;
+      color: #666;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #999;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    ❄️ Do I Need to Scrape My Windshield?
+  </header>
+
+  <main>
+    <div class="input-group">
+      <input id="zipInput" type="text" placeholder="Enter your ZIP code">
+      <button onclick="checkForecast()">Check Forecast</button>
+    </div>
+
+    <div id="forecastBox" class="forecast-box">
+      <p><strong>Tomorrow Morning:</strong></p>
+      <p>🌡️ Temp: <span id="temp">--</span></p>
+      <p>💧 Humidity: <span id="humidity">--</span></p>
+      <p>🌫️ Dew Point: <span id="dewpoint">--</span></p>
+      <p>☁️ Conditions: <span id="conditions">--</span></p>
+
+      <div class="prediction" id="prediction"></div>
+      <div class="tip" id="tip"></div>
+    </div>
+  </main>
+
+  <footer>
+  </footer>
+
+  <script>
+    async function checkForecast() {
+      const input = document.getElementById("zipInput").value.trim();
+      if (!input) {
+        alert("Please enter a ZIP code or city!");
+        return;
+      }
+
+      const url = `https://wttr.in/${input}?format=j1`;
+
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Location not found.");
+
+        const data = await response.json();
+        const current = data.current_condition[0];
+
+        const temp = parseFloat(current.temp_F);
+        const humidity = parseInt(current.humidity);
+        const wind = parseFloat(current.windspeedMiles);
+        const dewpoint = parseFloat(current.FeelsLikeF) - 2;
+        const conditions = current.weatherDesc[0].value;
+
+        document.getElementById("temp").innerText = `${temp}°F`;
+        document.getElementById("humidity").innerText = `${humidity}%`;
+        document.getElementById("dewpoint").innerText = `${dewpoint.toFixed(1)}°F`;
+        document.getElementById("conditions").innerText = `${conditions}, Wind: ${wind} mph`;
+
+        let predictionText = "";
+        let tipText = "";
+
+        if (temp <= 33 && humidity >= 80 && wind < 7) {
+          predictionText = "❄️ Yes, you'll probably need to scrape!";
+          tipText = "Tip: It's calm and cold — cover your windshield tonight.";
+        } else {
+          predictionText = "✅ You're likely safe — no scraping needed.";
+          if (wind >= 7) {
+            tipText = "Winds may help prevent frost — less scraping risk.";
+          } else {
+            tipText = "Still, maybe warm up your car just in case!";
+          }
+        }
+
+        document.getElementById("prediction").innerText = predictionText;
+        document.getElementById("tip").innerText = tipText;
+        document.getElementById("forecastBox").style.display = "block";
+
+      } catch (err) {
+        alert("Weather lookup failed: " + err.message);
+      }
+    }
+  </script>
+
+</body>
+</html>
