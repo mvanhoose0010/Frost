@@ -1,167 +1,563 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Do I Need to Scrape?</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #dfefff, #ffffff);
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    header {
-      background-color: #005f99;
-      color: white;
-      width: 100%;
-      padding: 1rem;
-      text-align: center;
-      font-size: 1.5rem;
-    }
-
-    main {
-      padding: 2rem;
-      max-width: 500px;
-      width: 100%;
-    }
-
-    .input-group {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    input[type="text"] {
-      flex: 1;
-      padding: 0.5rem;
-      font-size: 1rem;
-    }
-
-    button {
-      padding: 0.5rem 1rem;
-      font-size: 1rem;
-      background-color: #007acc;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    .forecast-box {
-      background-color: #f0f8ff;
-      padding: 1rem;
-      border-radius: 10px;
-      margin-top: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      display: none;
-    }
-
-    .prediction {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #003366;
-      margin-top: 1rem;
-    }
-
-    .tip {
-      margin-top: 0.5rem;
-      font-style: italic;
-      color: #666;
-    }
-
-    footer {
-      margin-top: auto;
-      padding: 1rem;
-      font-size: 0.9rem;
-      color: #999;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-
-  <header>
-    ❄️ Do I Need to Scrape My Windshield?
-  </header>
-
-  <main>
-    <div class="input-group">
-      <input id="zipInput" type="text" placeholder="Enter your ZIP code">
-      <button onclick="checkForecast()">Check Forecast</button>
-    </div>
-
-    <div id="forecastBox" class="forecast-box">
-      <p><strong>Tomorrow Morning:</strong></p>
-      <p>🌡️ Temp: <span id="temp">--</span></p>
-      <p>💧 Humidity: <span id="humidity">--</span></p>
-      <p>🌫️ Dew Point: <span id="dewpoint">--</span></p>
-      <p>☁️ Conditions: <span id="conditions">--</span></p>
-
-      <div class="prediction" id="prediction"></div>
-      <div class="tip" id="tip"></div>
-    </div>
-  </main>
-
-  <footer>
-  </footer>
-
-  <script>
-    async function checkForecast() {
-      const input = document.getElementById("zipInput").value.trim();
-      if (!input) {
-        alert("Please enter a ZIP code or city!");
-        return;
-      }
-
-      const url = `https://wttr.in/${input}?format=j1`;
-
-      try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Location not found.");
-
-        const data = await response.json();
-        const current = data.current_condition[0];
-
-        const temp = parseFloat(current.temp_F);
-        const humidity = parseInt(current.humidity);
-        const wind = parseFloat(current.windspeedMiles);
-        const dewpoint = parseFloat(current.FeelsLikeF) - 2;
-        const conditions = current.weatherDesc[0].value;
-
-        document.getElementById("temp").innerText = `${temp}°F`;
-        document.getElementById("humidity").innerText = `${humidity}%`;
-        document.getElementById("dewpoint").innerText = `${dewpoint.toFixed(1)}°F`;
-        document.getElementById("conditions").innerText = `${conditions}, Wind: ${wind} mph`;
-
-        let predictionText = "";
-        let tipText = "";
-
-        if (temp <= 33 && humidity >= 80 && wind < 7) {
-          predictionText = "❄️ Yes, you'll probably need to scrape!";
-          tipText = "Tip: It's calm and cold — cover your windshield tonight.";
-        } else {
-          predictionText = "✅ You're likely safe — no scraping needed.";
-          if (wind >= 7) {
-            tipText = "Winds may help prevent frost — less scraping risk.";
-          } else {
-            tipText = "Still, maybe warm up your car just in case!";
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neogen Solutions Lookup</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --lab-blue: #0A4D68;
+            --lab-teal: #088395;
+            --lab-light: #05BFDB;
+            --lab-accent: #00FFCA;
+            --bg-primary: #0D1117;
+            --bg-secondary: #161B22;
+            --text-primary: #E6EDF3;
+            --text-secondary: #8B949E;
+            --border-color: #30363D;
         }
 
-        document.getElementById("prediction").innerText = predictionText;
-        document.getElementById("tip").innerText = tipText;
-        document.getElementById("forecastBox").style.display = "block";
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-      } catch (err) {
-        alert("Weather lookup failed: " + err.message);
-      }
-    }
-  </script>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1f2e 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
 
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(8, 131, 149, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(5, 191, 219, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--lab-light) 0%, var(--lab-accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .search-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-family: 'DM Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-primary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1.125rem;
+            font-family: 'DM Mono', monospace;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--lab-light);
+            box-shadow: 0 0 0 3px rgba(5, 191, 219, 0.15);
+        }
+
+        button {
+            padding: 0.875rem 2rem;
+            background: linear-gradient(135deg, var(--lab-teal) 0%, var(--lab-light) 100%);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(5, 191, 219, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .results-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.8s ease-out 0.4s both;
+        }
+
+        .results-container.hidden {
+            display: none;
+        }
+
+        .result-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-header {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+            align-items: start;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .clickable-cell {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .clickable-cell:hover {
+            border-color: var(--lab-light);
+            background: var(--bg-primary);
+            transform: translateY(-1px);
+        }
+
+        .clickable-cell:active {
+            transform: translateY(0);
+        }
+
+        .clickable-cell::after {
+            content: '📋';
+            margin-left: 0.5rem;
+            opacity: 0.5;
+            font-size: 0.9rem;
+        }
+
+        .clickable-cell.copied {
+            border-color: var(--lab-accent);
+            background: rgba(0, 255, 202, 0.1);
+        }
+
+        .clickable-cell.copied::after {
+            content: '✓';
+            opacity: 1;
+        }
+
+        .cell-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-family: 'DM Mono', monospace;
+            margin-bottom: 0.25rem;
+        }
+
+        .prefix-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--lab-teal) 0%, var(--lab-light) 100%);
+            color: white;
+            padding: 0.375rem 0.875rem;
+            border-radius: 6px;
+            font-family: 'DM Mono', monospace;
+            font-size: 1.125rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 0.375rem;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .info-value a {
+            color: var(--lab-light);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid transparent;
+        }
+
+        .info-value a:hover {
+            color: var(--lab-accent);
+            border-bottom-color: var(--lab-accent);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .no-results-text {
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-results-hint {
+            font-size: 0.875rem;
+            font-family: 'DM Mono', monospace;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .search-container,
+            .results-container {
+                padding: 1.5rem;
+            }
+
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .result-header {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Neogen Solutions</h1>
+            <p class="subtitle">Solution Lookup System</p>
+        </header>
+
+        <div class="search-container">
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <label for="prefixInput">Enter Solution Prefix</label>
+                    <input 
+                        type="text" 
+                        id="prefixInput" 
+                        placeholder="e.g., ZT, YH, ZC" 
+                        maxlength="2"
+                        autocomplete="off"
+                    >
+                </div>
+                <button onclick="searchSolution()">Search</button>
+            </div>
+        </div>
+
+        <div id="resultsContainer" class="results-container hidden"></div>
+    </div>
+
+    <script>
+        const solutions = [
+            {prefix: "ZT", suffix: "X", ace: "FS-FRM-1836", aceLink: "https://neogen.pscace.com/project/record/preview?id=73398&version=137770", standard: "FS-WI-0981", standardLink: "https://neogen.pscace.com/project/record/view?id=73401&layout=main&set=0", record: "Bird Rinse Buffered Peptone Water Media", productNum: "41370109667", productName: "BRBPW MEDIA", expTime: "2 1/2 Hours"},
+            {prefix: "YH", suffix: "X", ace: "FS-FRM-1928", aceLink: "https://neogen.pscace.com/project/record/preview?id=79062&version=114716", standard: "FS-WI-1039", standardLink: "https://neogen.pscace.com/project/record/view?id=79064&layout=main&set=0", record: "BRBFD Media", productNum: "41370109659", productName: "BRBFD MEDIA", expTime: "24 Hours"},
+            {prefix: "ZC", suffix: "R", ace: "FS-FRM-1839", aceLink: "https://neogen.pscace.com/project/record/preview?id=73416&version=107425", standard: "FS-WI-0983", standardLink: "https://neogen.pscace.com/project/record/view?id=73403&layout=main&set=0", record: "Buffered Peptone Water ISO Media", productNum: "41370136511", productName: "BPW ISO MEDIA", expTime: "6 Hours"},
+            {prefix: "YE", suffix: "N/O/P", ace: "FS-FRM-2011", aceLink: "https://neogen.pscace.com/project/record/preview?id=83941&version=145335", standard: "FS-WI-1079", standardLink: "https://neogen.pscace.com/project/record/view?id=84083&layout=main&set=0", record: "Enviro Swab Solution", productNum: "41370137394", productName: "ENVIRO SWAB SOLUTION", expTime: "8 Hours"},
+            {prefix: "ZP", suffix: "S", ace: "FS-FRM-1919", aceLink: "https://neogen.pscace.com/project/record/preview?id=78622&version=113847", standard: "FS-WI-1036", standardLink: "https://neogen.pscace.com/project/record/view?id=78624&layout=main&set=0", record: "FTBFD BAM1 Solution", productNum: "41370109682", productName: "FTBFD SOLUTION BAM1", expTime: "24 Hours"},
+            {prefix: "ZK", suffix: "U/V/W", ace: "FS-FRM-1684", aceLink: "https://neogen.pscace.com/project/record/preview?id=62263&version=90174", standard: "FS-WI-0984", standardLink: "https://neogen.pscace.com/project/record/view?id=73404", record: "Hydrated Sponge Neutralizing Buffer Solution", productNum: "41370109567", productName: "HYDRATED SPONGE NEUTRALIZING BUFFER SOLUTION", expTime: "120 Hours"},
+            {prefix: "ZL", suffix: "R", ace: "FS-FRM-1796", aceLink: "https://neogen.pscace.com/project/record/preview?id=72872&version=106449", standard: "FS-WI-0911", standardLink: "https://neogen.pscace.com/project/record/view?id=73294", record: "Hydrated Sponge Letheen Solution", productNum: "41370109765", productName: "SPONGE LETHEEN", expTime: "8 Hours"},
+            {prefix: "ZZ", suffix: "R", ace: "FS-FRM-1930", aceLink: "https://neogen.pscace.com/project/record/preview?id=79154&version=114712", standard: "FS-WI-1041", standardLink: "https://neogen.pscace.com/project/record/view?id=79155&layout=main&set=0", record: "MFT MRD Solution", productNum: "41370109625", productName: "Vial MRD Solution", expTime: "6 Hours"},
+            {prefix: "YG", suffix: "S", ace: "FS-FRM-1879", aceLink: "https://neogen.pscace.com/project/record/preview?id=75513&version=110270", standard: "FS-WI-1009", standardLink: "https://neogen.pscace.com/project/record/view?id=75621&layout=main&set=0", record: "MFT NB Solution", productNum: "41370109591", productName: "MFT NB Solution", expTime: "24 Hours"},
+            {prefix: "ZX", suffix: "S", ace: "FS-FRM-1958", aceLink: "https://neogen.pscace.com/project/record/preview?id=81130&version=164144", standard: "FS-WI-1066", standardLink: "https://neogen.pscace.com/project/record/view?id=81137&layout=main&set=0", record: "Mini Flip Top BFD Solution", productNum: "41370109609", productName: "MFT BFD Solution", expTime: "24 Hours"},
+            {prefix: "ZY", suffix: "R", ace: "FS-FRM-1944", aceLink: "https://neogen.pscace.com/project/record/preview?id=79867&version=115983", standard: "FS-WI-1053", standardLink: "https://neogen.pscace.com/project/record/view?id=79866", record: "Mini Flip Top BPW Solution", productNum: "41370109575", productName: "MFT BPW Solution", expTime: "6 Hours"},
+            {prefix: "ZA", suffix: "R", ace: "FS-FRM-1793", aceLink: "https://neogen.pscace.com/project/record/preview?id=72594&version=106101", standard: "FS-WI-0908", standardLink: "https://neogen.pscace.com/project/record/view?id=73291&layout=main&set=3", record: "QEBPW Solution", productNum: "41370109781", productName: "QEBPW MEDIA", expTime: "6 Hours"},
+            {prefix: "ZH", suffix: "R", ace: "FS-FRM-1915", aceLink: "https://neogen.pscace.com/project/record/preview?id=78600&version=119851", standard: "FS-WI-1034", standardLink: "https://neogen.pscace.com/project/record/view?id=78610&layout=main&set=0", record: "QETSB Solution", productNum: "41370109864", productName: "QETSB Solution", expTime: "6 Hours"},
+            {prefix: "ZG", suffix: "S", ace: "FS-FRM-1938", aceLink: "https://neogen.pscace.com/project/record/preview?id=79369&version=115068", standard: "FS-WI-1048", standardLink: "https://neogen.pscace.com/project/record/view?id=79368&layout=main&set=0", record: "Quick Dilute 99mL BFD Solution", productNum: "41370135273", productName: "Quick Dilute 99 mL BFD Solution", expTime: "24 Hours"},
+            {prefix: "ZF", suffix: "S", ace: "FS-FRM-1804", aceLink: "https://neogen.pscace.com/project/record/preview?id=72941&version=106553", standard: "FS-WI-0919", standardLink: "https://neogen.pscace.com/project/record/view?id=73302&layout=main&set=0", record: "Quick Dilute Butterfield's Buffer Media for 450 mL", productNum: "41370135281", productName: "QD BUTTERFIELDS MEDIA 225", expTime: "24 Hours"},
+            {prefix: "ZB", suffix: "S", ace: "FS-FRM-1687", aceLink: "https://neogen.pscace.com/project/record/preview?id=62266&version=106103", standard: "FS-WI-0781", standardLink: "https://neogen.pscace.com/project/record/view?id=62315&layout=main&set=0", record: "Quick Dilute Butterfields", productNum: "41370109773", productName: "QD BUTTERFIELDS MEDIA 225", expTime: "24 Hours"},
+            {prefix: "ZM", suffix: "R", ace: "FS-FRM-1900", aceLink: "https://neogen.pscace.com/project/record/preview?id=76988&version=113003", standard: "FS-WI-1024", standardLink: "https://neogen.pscace.com/project/record/view?id=77189", record: "Sponge BPW Solution", productNum: "41370109732", productName: "Sponge BPW Solution", expTime: "6 hours"},
+            {prefix: "ZN", suffix: "R", ace: "FS-FRM-1951", aceLink: "https://neogen.pscace.com/project/record/preview?id=80369&version=116085", standard: "FS-WI-1061", standardLink: "https://neogen.pscace.com/project/record/view?id=80368&layout=main&set=0", record: "Sponge DE Solution", productNum: "41370109757", productName: "Sponge DE Solution", expTime: "8 Hours"},
+            {prefix: "YC", suffix: "R", ace: "FS-FRM-1933", aceLink: "https://neogen.pscace.com/project/record/preview?id=79258&version=114705", standard: "FS-WI-1044", standardLink: "https://neogen.pscace.com/project/record/view?id=79257&layout=main&set=0", record: "Swab Sampler BPW Solution", productNum: "41370135349", productName: "Swab Sampler BPW Solution", expTime: "6 Hours"},
+            {prefix: "YD", suffix: "S", ace: "FS-FRM-1936", aceLink: "https://neogen.pscace.com/project/record/preview?id=79322&version=114984", standard: "FS-WI-1047", standardLink: "https://neogen.pscace.com/project/record/view?id=79324&layout=main&set=0", record: "Swab Sampler NB Solution", productNum: "41370135372", productName: "Swab Sampler NB Solution", expTime: "24 Hours"},
+            {prefix: "YB", suffix: "R", ace: "FS-FRM-1806", aceLink: "https://neogen.pscace.com/project/record/preview?id=72943&version=106559", standard: "FS-WI-0921", standardLink: "https://neogen.pscace.com/project/record/view?id=73304", record: "Vial Letheen Solution", productNum: "41370135364", productName: "VIAL LETHEEN", expTime: "8 Hours"},
+            {prefix: "ZO", suffix: "T/V", ace: "FS-FRM-1690", aceLink: "https://neogen.pscace.com/project/record/preview?id=62269&version=106109", standard: "FS-WI-0784", standardLink: "https://neogen.pscace.com/project/record/view?id=62318", record: "Wide Spectrum Neutralizer Solution (WSN)", productNum: "41370138293", productName: "WIDE SPECTRUM NEUTRALIZER SOLUTION", expTime: "24 SYSTEC/4 OUT"},
+            {prefix: "ZS", suffix: "R", ace: "FS-FRM-2265", aceLink: "https://neogen.pscace.com/project/record/view?id=117523", standard: "FS-WI-1242", standardLink: "https://neogen.pscace.com/project/record/view?id=117517&layout=main&set=0", record: "FTPW 99mL BAM1", productNum: "41370109724", productName: "FTPW 99 mL BAM1", expTime: "6 Hours"},
+            {prefix: "ZV", suffix: "R", ace: "FS-FRM-2211", aceLink: "https://neogen.pscace.com/project/record/preview?id=106076&version=151159", standard: "FS-WI-1166", standardLink: "https://neogen.pscace.com/project/record/view?id=106077&layout=main&set=0", record: "FTPW 90mL BAM1", productNum: "41370109716", productName: "FTPW 90 mL BAM", expTime: "6 Hours"},
+            {prefix: "ZQ", suffix: "N/P/S", ace: "FS-FRM-2097", aceLink: "https://neogen.pscace.com/project/record/view?id=95606", standard: "FS-WI-1130", standardLink: "https://neogen.pscace.com/project/record/view?id=95666", record: "FTPHB Solution", productNum: "41370109708", productName: "FTPHB SOLUTION", expTime: "24 Hours"},
+            {prefix: "ZU", suffix: "R", ace: "FS-FRM-2279", aceLink: "https://neogen.pscace.com/project/record/view?id=120431&layout=main&set=0", standard: "FS-WI-1273", standardLink: "https://neogen.pscace.com/project/record/view?id=120432", record: "FTBPW 90mL BAM1 Solution", productNum: "41370109690", productName: "FTBPW 90 mL BAM1", expTime: "6 Hours"},
+            {prefix: "ZR", suffix: "N/O/Q", ace: "FS-FRM-2096", aceLink: "https://neogen.pscace.com/project/record/view?id=95577&layout=main&set=0", standard: "FS-WI-1129", standardLink: "https://neogen.pscace.com/project/record/view?id=95579", record: "MGCL Solution", productNum: "41370135471", productName: "MGCL Solution", expTime: "24 Hours"},
+            {prefix: "ZI", suffix: "S", ace: "FS-FRM-2061", aceLink: "https://neogen.pscace.com/project/record/view?id=88658", standard: "FS-WI-1106", standardLink: "https://neogen.pscace.com/project/record/view?id=88657", record: "USDA25BFD", productNum: "41370109971", productName: "USDA BFD", expTime: "24 Hours"},
+            {prefix: "YA", suffix: "R", ace: "FS-FRM-2112", aceLink: "https://neogen.pscace.com/project/record/view?id=99216", standard: "FS-WI-1141", standardLink: "https://neogen.pscace.com/project/record/view?id=99217&layout=main&set=1", record: "Vial DE Solution", productNum: "41370109559", productName: "MFT DE Solution", expTime: "8 Hours"}
+        ];
+
+        const input = document.getElementById('prefixInput');
+        
+        // Focus input on page load
+        window.addEventListener('load', () => {
+            input.focus();
+        });
+
+        // Search on Enter key
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchSolution();
+            }
+        });
+
+        // Auto-uppercase input
+        input.addEventListener('input', (e) => {
+            e.target.value = e.target.value.toUpperCase();
+        });
+
+        function copyToClipboard(text, element) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Visual feedback
+                element.classList.add('copied');
+                setTimeout(() => {
+                    element.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                element.classList.add('copied');
+                setTimeout(() => {
+                    element.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function searchSolution() {
+            const prefix = input.value.trim().toUpperCase();
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            if (prefix.length === 0) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+
+            const results = solutions.filter(sol => sol.prefix === prefix);
+            
+            resultsContainer.classList.remove('hidden');
+            
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <div class="no-results-text">No solution found for prefix "${prefix}"</div>
+                        <div class="no-results-hint">Try a different two-character code</div>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsContainer.innerHTML = results.map((solution, index) => `
+                <div class="result-card">
+                    <div class="result-header">
+                        <div>
+                            <span class="prefix-badge">${solution.prefix}</span>
+                        </div>
+                        <div class="header-info">
+                            <div>
+                                <div class="cell-label">Product Name on Label</div>
+                                <div class="clickable-cell" onclick="copyToClipboard('${solution.productName}', this)" title="Click to copy">
+                                    ${solution.productName}
+                                </div>
+                            </div>
+                            <div>
+                                <div class="cell-label">Product Number</div>
+                                <div class="clickable-cell" onclick="copyToClipboard('${solution.productNum}', this)" title="Click to copy">
+                                    ${solution.productNum}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Solution Batch ACE Form</div>
+                            <div class="info-value"><a href="${solution.aceLink}" target="_blank" rel="noopener noreferrer">${solution.ace}</a></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Product Standard</div>
+                            <div class="info-value"><a href="${solution.standardLink}" target="_blank" rel="noopener noreferrer">${solution.standard}</a></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Solution Batch Record</div>
+                            <div class="info-value">${solution.record}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Suffix</div>
+                            <div class="info-value">${solution.suffix}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Expiration Time</div>
+                            <div class="info-value">${solution.expTime}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
 </body>
 </html>
